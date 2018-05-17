@@ -20,7 +20,7 @@ public class GroupByKey {
     public static void main(String[] args) {
         SparkSession session = SparkSession.builder()
                 .master("local[2]")
-                .appName("CombineByKey")
+                .appName("GroupByKey")
                 .getOrCreate();
 
         // Create a JavaSparkContext using the SparkSession's SparkContext object
@@ -51,6 +51,7 @@ public class GroupByKey {
             }
         });
         System.out.println(groupByKeyRDD3.collect());
+
         jsc.stop();
         session.stop();
     }

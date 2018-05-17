@@ -18,7 +18,7 @@ public class AggregateByKey {
 
         SparkSession session = SparkSession.builder()
                 .master("local[2]")
-                .appName("CombineByKey")
+                .appName("AggregateByKey")
                 .getOrCreate();
 
         // Create a JavaSparkContext using the SparkSession's SparkContext object
@@ -27,13 +27,13 @@ public class AggregateByKey {
 
         List<Tuple2<Integer, String>> list = new ArrayList<>();
 
-        list.add(new Tuple2<>(1, "www"));
-        list.add(new Tuple2<>(1, "iteblog"));
-        list.add(new Tuple2<>(1, "com"));
-        list.add(new Tuple2<>(2, "bbs"));
-        list.add(new Tuple2<>(2, "iteblog"));
-        list.add(new Tuple2<>(2, "com"));
-        list.add(new Tuple2<>(3, "good"));
+        list.add(new Tuple2<>(1, "aaa"));
+        list.add(new Tuple2<>(1, "bbb"));
+        list.add(new Tuple2<>(1, "ccc"));
+        list.add(new Tuple2<>(2, "aaa"));
+        list.add(new Tuple2<>(2, "ddd"));
+        list.add(new Tuple2<>(2, "eee"));
+        list.add(new Tuple2<>(3, "bbb"));
 
         JavaPairRDD<Integer, String> data = jsc.parallelizePairs(list);
 
@@ -46,5 +46,9 @@ public class AggregateByKey {
         });
 
         result.collect().forEach(System.out::println);
+
+        jsc.close();
+        session.stop();
+
     }
 }

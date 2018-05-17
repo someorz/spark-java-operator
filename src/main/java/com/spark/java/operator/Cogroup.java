@@ -12,7 +12,7 @@ import java.util.List;
  * @author machi
  * @create 2018/05/17
  **/
-public class Join {
+public class Cogroup {
     public static void main(String[] args) {
 
         SparkSession session = SparkSession.builder()
@@ -40,25 +40,15 @@ public class Join {
                 new Tuple2<>(3, 71)
         );
 
-
         JavaPairRDD<Integer, String> studentsRDD = jsc.parallelizePairs(studentsList);
         JavaPairRDD<Integer, Integer> scoresRDD = jsc.parallelizePairs(scoresList);
 
-        /*
-        前面数据
-        (1,xufengnian)(2,xuyao)(2,"wangchudong")(3,laohuang)
-        (1,100)(2,90)(3,80)(1,101)(2,91)(3,81)(3,71)
-        join之后：
-        (1,(xufengnian,100))(1,(xufengnian,101))(3,(laohuang,80))(3,(laohuang,81))(3,(laohuang,71))
-        (2,(xuyao,90))(2,(xuyao,91))(2,(wangchudong,90))(2,(wangchudong,91))
-        */
-        JavaPairRDD<Integer, Tuple2<String, Integer>> studentScores = studentsRDD.join(scoresRDD);
+        JavaPairRDD<Integer, Tuple2<Iterable<String>, Iterable<Integer>>> studentScores = studentsRDD.cogroup(
+                scoresRDD);
 
-
-        List<Tuple2<Integer, Tuple2<String, Integer>>> collect = studentScores.collect();
+        List<Tuple2<Integer, Tuple2<Iterable<String>, Iterable<Integer>>>> collect = studentScores.collect();
 
         System.out.println(collect);
-
 
         jsc.close();
         session.stop();

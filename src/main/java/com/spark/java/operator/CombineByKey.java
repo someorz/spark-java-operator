@@ -20,7 +20,6 @@ import java.util.List;
 public class CombineByKey {
     public static void main(String[] args) {
 
-
         SparkSession session = SparkSession.builder()
                 .master("local[2]")
                 .appName("CombineByKey")
@@ -51,5 +50,6 @@ public class CombineByKey {
         System.out.println(combineByKeyRDD.collect());
 
         jsc.stop();
+        session.stop();
     }
 }
