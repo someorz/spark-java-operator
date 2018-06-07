@@ -1,4 +1,4 @@
-package com.spark.java.operator;
+package com.spark.java.operator.transformation;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -17,10 +17,9 @@ public class Cogroup {
 
         SparkSession session = SparkSession.builder()
                 .master("local[2]")
-                .appName("Join")
+                .appName("Cogroup")
                 .getOrCreate();
 
-        // Create a JavaSparkContext using the SparkSession's SparkContext object
         JavaSparkContext jsc = new JavaSparkContext(session.sparkContext());
 
         List<Tuple2<Integer, String>> studentsList = Arrays.asList(
@@ -53,5 +52,4 @@ public class Cogroup {
         jsc.close();
         session.stop();
     }
-
 }

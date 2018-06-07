@@ -1,4 +1,4 @@
-package com.spark.java.operator;
+package com.spark.java.operator.transformation;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * aggregateByKey函数对PairRDD中相同Key的值进行聚合操作，在聚合过程中同样使用了一个中立的初始值。
+ * 和aggregate函数类似，aggregateByKey返回值的类型不需要和RDD中value的类型一致。因为aggregateByKey是对相同Key中的值进行聚合操作，
+ * 所以aggregateByKey函数最终返回的类型还是Pair RDD，对应的结果是Key和聚合好的值
+ *
  * @author machi
  * @create 2018/05/14
  **/
@@ -21,9 +25,7 @@ public class AggregateByKey {
                 .appName("AggregateByKey")
                 .getOrCreate();
 
-        // Create a JavaSparkContext using the SparkSession's SparkContext object
         JavaSparkContext jsc = new JavaSparkContext(session.sparkContext());
-
 
         List<Tuple2<Integer, String>> list = new ArrayList<>();
 
@@ -49,6 +51,5 @@ public class AggregateByKey {
 
         jsc.close();
         session.stop();
-
     }
 }

@@ -1,4 +1,4 @@
-package com.spark.java.operator;
+package com.spark.java.operator.transformation;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -9,9 +9,10 @@ import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.sql.SparkSession;
 import scala.Tuple2;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author machi
@@ -25,27 +26,25 @@ public class CombineByKey {
                 .appName("CombineByKey")
                 .getOrCreate();
 
-        // Create a JavaSparkContext using the SparkSession's SparkContext object
         JavaSparkContext jsc = new JavaSparkContext(session.sparkContext());
-
 
         List<Integer> data = Arrays.asList(1, 2, 4, 3, 5, 6, 7, 1, 2);
         JavaRDD<Integer> javaRDD = jsc.parallelize(data);
         //转化为pairRDD
-        JavaPairRDD<Integer, Integer> javaPairRDD = javaRDD.mapToPair((PairFunction<Integer, Integer, Integer>)
-                integer -> new Tuple2<>(integer, 1));
+        JavaPairRDD<Integer, String> javaPairRDD = javaRDD.mapToPair((PairFunction<Integer, Integer, String>)
+                integer -> new Tuple2<>(integer, "1"));
 
-        JavaPairRDD<Integer, List<Integer>> combineByKeyRDD = javaPairRDD.combineByKey(
-                (Function<Integer, List<Integer>>) v1 -> {
-                    ArrayList<Integer> integers = new ArrayList<>();
-                    integers.add(v1);
-                    return integers;
-                }, (Function2<List<Integer>, Integer, List<Integer>>) (integers, integer) -> {
-                    integers.add(integer);
-                    return integers;
-                }, (Function2<List<Integer>, List<Integer>, List<Integer>>) (integers, integers2) -> {
-                    integers.addAll(integers2);
-                    return integers;
+        JavaPairRDD<Integer, List<String>> combineByKeyRDD = javaPairRDD.combineByKey(
+                (Function<String, List<String>>) s -> {
+                    List<String> collect = Stream.of(s).collect(Collectors.toList());
+                    return collect;
+                },
+                (Function2<List<String>, String, List<String>>) (strings, s) -> {
+                    strings.add(s);
+                    return strings;
+                }, (Function2<List<String>, List<String>, List<String>>) (strings, strings2) -> {
+                    strings.addAll(strings2);
+                    return strings;
                 });
         System.out.println(combineByKeyRDD.collect());
 
