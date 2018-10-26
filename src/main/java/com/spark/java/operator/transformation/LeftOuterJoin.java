@@ -53,7 +53,7 @@ public class LeftOuterJoin {
                         return (key.toString()).hashCode() % numPartitions();
                     }
                 });
-        System.out.println(leftJoinRDD2);
+        System.out.println(leftJoinRDD2.collect());
 
         jsc.close();
         session.stop();
