@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.StreamSupport;
 
 /**
  * mapPartitions函数会对每个分区依次调用分区函数处理，然后将处理的结果(若干个Iterator)生成新的RDDs。
@@ -34,19 +35,34 @@ public class MapPartitions {
         //RDD有两个分区
         JavaRDD<Integer> javaRDD = jsc.parallelize(data, 2);
         //计算每个分区的合计
-        JavaRDD<Integer> mapPartitionsRDD = javaRDD.mapPartitions(
+        JavaRDD<Integer> rdd1 = javaRDD.mapPartitions(
                 (FlatMapFunction<Iterator<Integer>, Integer>) integerIterator -> {
-                    int isum = 0;
-                    while (integerIterator.hasNext()) {
-                        isum += integerIterator.next();
-                    }
                     List<Integer> linkedList = new LinkedList<>();
-                    linkedList.add(isum);
+                    while (integerIterator.hasNext()) {
+                        linkedList.add(integerIterator.next()+1);
+                    }
                     return linkedList.iterator();
                 });
 
-        System.out.println(mapPartitionsRDD.collect());
+        System.out.println(rdd1.collect());
+        //计算每个分区的合计
+        JavaRDD<Integer> rdd2 = javaRDD.mapPartitions(
+                (FlatMapFunction<Iterator<Integer>, Integer>) integerIterator -> {
+                    Iterable<Integer> iterator = () -> integerIterator;
 
+                    new Iterable<Integer>() {
+                        @Override
+                        public Iterator<Integer> iterator() {
+                            return integerIterator;
+                        }
+                    };
+
+                    return StreamSupport.stream(iterator.spliterator(), false)
+                            .map(t -> ++t)
+                            .iterator();
+                });
+
+        System.out.println(rdd2.collect());
         jsc.close();
         session.stop();
     }
