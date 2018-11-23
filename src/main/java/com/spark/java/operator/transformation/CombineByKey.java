@@ -1,5 +1,6 @@
 package com.spark.java.operator.transformation;
 
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -28,21 +29,22 @@ public class CombineByKey {
 
         JavaSparkContext jsc = new JavaSparkContext(session.sparkContext());
 
-        List<Integer> data = Arrays.asList(1, 2, 4, 3, 5, 6, 7, 1, 2);
+        List<Integer> data = Arrays.asList(1, 2, 4, 3, 5, 6, 7, 1, 2, 4, 4, 4, 1, 3, 2, 1, 1, 1, 6, 7, 3, 3, 3, 3, 3,
+                1);
         JavaRDD<Integer> javaRDD = jsc.parallelize(data);
         //转化为pairRDD
-        JavaPairRDD<Integer, String> javaPairRDD = javaRDD.mapToPair((PairFunction<Integer, Integer, String>)
-                integer -> new Tuple2<>(integer, "1"));
+        JavaPairRDD<Integer, Integer> javaPairRDD = javaRDD.mapToPair((PairFunction<Integer, Integer, Integer>)
+                integer -> new Tuple2<>(integer, RandomUtils.nextInt(100, 200)));
 
-        JavaPairRDD<Integer, List<String>> combineByKeyRDD = javaPairRDD.combineByKey(
-                (Function<String, List<String>>) s -> {
-                    List<String> collect = Stream.of(s).collect(Collectors.toList());
+        JavaPairRDD<Integer, List<Integer>> combineByKeyRDD = javaPairRDD.combineByKey(
+                (Function<Integer, List<Integer>>) s -> {
+                    List<Integer> collect = Stream.of(s).collect(Collectors.toList());
                     return collect;
                 },
-                (Function2<List<String>, String, List<String>>) (strings, s) -> {
+                (Function2<List<Integer>, Integer, List<Integer>>) (strings, s) -> {
                     strings.add(s);
                     return strings;
-                }, (Function2<List<String>, List<String>, List<String>>) (strings, strings2) -> {
+                }, (Function2<List<Integer>, List<Integer>, List<Integer>>) (strings, strings2) -> {
                     strings.addAll(strings2);
                     return strings;
                 });
@@ -51,4 +53,5 @@ public class CombineByKey {
         jsc.stop();
         session.stop();
     }
+
 }
